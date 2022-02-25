@@ -1,5 +1,8 @@
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MAGIIAN {
     int states;
@@ -37,29 +40,20 @@ public class MAGIIAN {
 
     @Override
     public String toString() {
-        String s = "{";
-        s += "\"states\":[";
+        JSONObject json = new JSONObject();
+        int[] statearray = new int[states];
         for (int i = 0; i < states; i++) {
-            s+= i+", ";
+            statearray[i] = i;
         }
-        s += "], ";
+        json.put("states", statearray);
+        json.put("L0", l0);
+        json.put("sigma", sigma);
+        json.put("delta", Arrays.stream(delta.toArray()).map(Object::toString).
+                toArray(String[]::new));
+        json.put("obs", Arrays.stream(observations).map(Object::toString).
+                toArray(String[]::new));
 
-        s += "\"L0\":" + l0 +", ";
-        s += "\"Sigma\":" + sigma.toString() +", ";
-        s += "\" Delta\":[";
-        for (int i = 0; i < delta.size()-1; i++) {
-            s+= delta.get(i).toString();
-        }
-        s += "], ";
-
-        s += "\" Obs\":[";
-
-        for (int i = 0; i < observations.length -1; i++) {
-            s += observations[i].toString();
-        }
-        s += "]";
-
-        return s;
+        return json.toString();
     }
 
     class Transition {
@@ -76,7 +70,7 @@ public class MAGIIAN {
         @Override
         public String toString() {
 
-        return "(" + from +", " + path + ", " + to + ")";
+        return "[" + from +"," + path + "," + to + "]";
 
         }
     }
