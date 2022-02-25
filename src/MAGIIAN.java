@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.util.Arrays;
+
 
 public class MAGIIAN {
     int states;
@@ -29,9 +29,7 @@ public class MAGIIAN {
         sigma[player] = actions;
     }
 
-    void addTransition(int from, int to, String actions){
-        delta.add(new Transition(from, to, actions));
-    }
+    void addTransition(int from, int to, String actions){ delta.add(new Transition(from, to, actions)); }
 
     void setObsForPlayer(int player, int state, int observation){
         observations[player].setObservation(state, observation);
@@ -39,7 +37,29 @@ public class MAGIIAN {
 
     @Override
     public String toString() {
+        String s = "{";
+        s += "\"states\":[";
+        for (int i = 0; i < states; i++) {
+            s+= i+", ";
+        }
+        s += "], ";
 
+        s += "\"L0\":" + l0 +", ";
+        s += "\"Sigma\":" + sigma.toString() +", ";
+        s += "\" Delta\":[";
+        for (int i = 0; i < delta.size()-1; i++) {
+            s+= delta.get(i).toString();
+        }
+        s += "], ";
+
+        s += "\" Obs\":[";
+
+        for (int i = 0; i < observations.length -1; i++) {
+            s += observations[i].toString();
+        }
+        s += "]";
+
+        return s;
     }
 
     class Transition {
@@ -55,6 +75,8 @@ public class MAGIIAN {
 
         @Override
         public String toString() {
+
+        return "(" + from +", " + path + ", " + to + ")";
 
         }
     }
@@ -87,6 +109,7 @@ public class MAGIIAN {
                 }
             }
            return (max == count-1);
+
         }
         //todo: make normailsed method
 
