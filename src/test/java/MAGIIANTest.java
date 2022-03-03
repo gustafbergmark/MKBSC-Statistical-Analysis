@@ -16,7 +16,7 @@ class MAGIIANTest {
         game.setAction(0, "wp");
         game.setAction(1, "wp");
 
-//Adding transitions
+        //Adding transitions
         game.addTransition(0,0,"pp");
         game.addTransition(0,0,"ww");
 

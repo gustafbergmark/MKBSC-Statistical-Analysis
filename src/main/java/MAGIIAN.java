@@ -38,6 +38,16 @@ public class MAGIIAN {
         observations[player].setObservation(state, observation);
     }
 
+    public ArrayList<Transition> gettransitionfromstate(int state) {
+        ArrayList<Transition> result = new ArrayList<>();
+        for (Transition edge:delta) {
+            if(edge.from == state) {
+                result.add(edge);
+            }
+        }
+        return result;
+    }
+
     @Override
     public String toString() {
         JSONObject json = new JSONObject();
