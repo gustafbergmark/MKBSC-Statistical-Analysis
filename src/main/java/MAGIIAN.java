@@ -140,7 +140,17 @@ public class MAGIIAN {
             obs[state] = observation;
         }
 
-        boolean isNormalised() {
+        public int getSize(int state){
+            int count = 0;
+            for (int i = 0; i < obs.length; i++) {
+                if(obs[i] == state){
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        boolean isNormalised(){
             boolean[] seen = new boolean[states];
             int count = 0;
             int max = 0;

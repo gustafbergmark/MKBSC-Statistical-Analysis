@@ -22,4 +22,32 @@ public class Classifier {
         visited[currentstate] = false;
         return false;
     }
+
+
+    static boolean hasOverlap(MAGIIAN game) {
+        /* Working for 2 players only ?
+        Observation p1 = game.observations[0];
+        Observation p2 = game.observations[1];
+
+        for (int i = 0; i < game.states; i++) {
+            if(p1.getSize(i) > 1 && p2.getSize(j) > 1){
+            return true;
+            }
+        }
+        return false;
+        */
+
+        //General approach for n players
+        for (int i = 0; i < game.players ; i++) {
+            for (int j = i+1; j < game.players; j++) {
+
+                for (int k = 0; k < game.states; k++) {
+                        if(game.observations[i].getSize(k) > 1 && game.observations[j].getSize(k) > 1) { //observation overlap found
+                            return true;
+                        }
+                }
+            }
+        }
+        return false;
+    }
 }
