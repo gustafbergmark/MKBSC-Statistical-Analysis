@@ -8,6 +8,7 @@ public class MAGIIAN {
     int states;
     int l0;
     int players;
+    int stabilises;
     String[] sigma;
     ArrayList<Transition> delta;
     Observation[] observations;
@@ -16,6 +17,7 @@ public class MAGIIAN {
         this.states = states;
         this.l0 = l0;
         this.players = players;
+        stabilises = -1; //dummy value, meant to be updated by mkbsc
         sigma = new String[players];
         delta = new ArrayList<>();
         observations = new Observation[players];
@@ -24,24 +26,63 @@ public class MAGIIAN {
         }
     }
 
-    void addAction(int player, String actions){
+    public MAGIIAN(JSONObject json) {
+        states = json.getJSONArray("states").length();
+        l0 = json.getInt("L0");
+        players = json.getInt("players");
+        stabilises = json.getInt("stabilises");
+        sigma = new String[players];
+        delta = new ArrayList<>();
+        observations = new Observation[players];
+        for (int i = 0; i < players; i++) {
+            observations[i] = new Observation();
+        }
+        //sigma
+        JSONArray actions = json.getJSONArray("sigma");
+        for (int i = 0; i < actions.length(); i++) {
+            setAction(i, actions.getString(i));
+        }
+        //delta
+        JSONArray transitions = json.getJSONArray("delta");
+        for (int i = 0; i < transitions.length(); i++) {
+            JSONArray parsed = new JSONArray(transitions.getString(i));
+            addTransition(parsed.getInt(0), parsed.getInt(2), parsed.getString(1));
+        }
+        //observations
+        JSONArray observationarray = json.getJSONArray("obs");
+        for (int i = 0; i < observationarray.length(); i++) {
+            JSONArray parsedplayerobs = new JSONArray(observationarray.getString(i));
+            int currentobs = 0;
+            for (int j = 0; j < parsedplayerobs.length(); j++) {
+                JSONArray parsedobsstates = parsedplayerobs.getJSONArray(j);
+                for (int k = 0; k < parsedobsstates.length(); k++) {
+                    setObsForPlayer(i, parsedobsstates.getInt(k), currentobs);
+                }
+                currentobs++;
+            }
+        }
+    }
+
+    void addAction(int player, String actions) {
         sigma[player] += actions;
     }
 
-    void setAction(int player, String actions){
+    void setAction(int player, String actions) {
         sigma[player] = actions;
     }
 
-    void addTransition(int from, int to, String actions){ delta.add(new Transition(from, to, actions)); }
+    void addTransition(int from, int to, String actions) {
+        delta.add(new Transition(from, to, actions));
+    }
 
-    void setObsForPlayer(int player, int state, int observation){
+    void setObsForPlayer(int player, int state, int observation) {
         observations[player].setObservation(state, observation);
     }
 
     public ArrayList<Transition> gettransitionfromstate(int state) {
         ArrayList<Transition> result = new ArrayList<>();
-        for (Transition edge:delta) {
-            if(edge.from == state) {
+        for (Transition edge : delta) {
+            if (edge.from == state) {
                 result.add(edge);
             }
         }
@@ -55,7 +96,9 @@ public class MAGIIAN {
         for (int i = 0; i < states; i++) {
             statearray[i] = i;
         }
+        json.put("stabilises", stabilises);
         json.put("states", statearray);
+        json.put("players", players);
         json.put("L0", l0);
         json.put("sigma", sigma);
         json.put("delta", Arrays.stream(delta.toArray()).map(Object::toString).
@@ -77,10 +120,11 @@ public class MAGIIAN {
             this.path = path;
         }
 
+
         @Override
         public String toString() {
 
-        return "[" + from +"," + path + "," + to + "]";
+            return "[" + from + "," + path + "," + to + "]";
 
         }
     }
@@ -88,23 +132,25 @@ public class MAGIIAN {
     class Observation {
         int[] obs;
 
-        public Observation(){
+        public Observation() {
             obs = new int[states];
         }
 
-        public void setObservation(int state, int observation){
+        public void setObservation(int state, int observation) {
             obs[state] = observation;
         }
 
-        boolean isNormalised(){
+        boolean isNormalised() {
             boolean[] seen = new boolean[states];
             int count = 0;
             int max = 0;
 
             for (int i = 0; i < states; i++) {
-                if(obs[i] >= states){return false;}
+                if (obs[i] >= states) {
+                    return false;
+                }
 
-                if(!seen[obs[i]]) {
+                if (!seen[obs[i]]) {
                     if (obs[i] > max) {
                         max = obs[i];
                     }
@@ -112,7 +158,7 @@ public class MAGIIAN {
                     seen[obs[i]] = true;
                 }
             }
-           return (max == count-1);
+            return (max == count - 1);
 
         }
         //todo: make normailsed method
@@ -125,10 +171,10 @@ public class MAGIIAN {
             for (int i = 0; count < states; i++) {
                 s += "[";
                 for (int j = 0; j < states; j++) {
-                   if(i == obs[j]){
-                       s += j + ",";
-                       count++;
-                   }
+                    if (i == obs[j]) {
+                        s += j + ",";
+                        count++;
+                    }
                 }
                 s += "],";
             }

@@ -1,7 +1,16 @@
+import netscape.javascript.JSObject;
+import org.json.JSONObject;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 public class Main {
-    public static void main(String[] args) {
-        Generator generator = new Generator(4,2,"ab");
-        MAGIIAN game = generator.generate();
-        System.out.println(game);
+    public static void main(String[] args) throws IOException {
+        PrintWriter writer = new PrintWriter("games.txt");
+        Generator generator = new Generator(3,2,"ab");
+        for (int i = 0; i < 10000; i++) {
+            MAGIIAN game = generator.generate();
+            writer.println(game.toString());
+        }
+        writer.close();
     }
 }
