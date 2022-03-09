@@ -39,8 +39,20 @@ public class Generator {
         //https://stats.stackexchange.com/questions/497858/sampling-uniformly-from-the-set-of-partitions-of-a-set
         for (int player = 0; player < players; player++) {
             int k = getbins(states);
+            boolean[] assignedstates = new boolean[states];
+            for(int bin = 0; bin < k; bin++) {
+                int rand = random.nextInt(states);
+                while(assignedstates[rand]) {
+                    rand = random.nextInt(states);
+                }
+                game.setObsForPlayer(player, rand, bin);
+                assignedstates[rand] = true;
+            }
             for (int state = 0; state < states; state++) {
-                game.setObsForPlayer(player, state, random.nextInt(k));
+                if(!assignedstates[state]) {
+                    int rand = random.nextInt(k);
+                    game.setObsForPlayer(player, state, rand);
+                }
             }
         }
         return game;

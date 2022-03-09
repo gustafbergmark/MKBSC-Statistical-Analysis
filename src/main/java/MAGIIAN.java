@@ -143,7 +143,7 @@ public class MAGIIAN {
         public int getSize(int state){
             int count = 0;
             for (int i = 0; i < obs.length; i++) {
-                if(obs[i] == state){
+                if(obs[i] == obs[state]){
                     count++;
                 }
             }
