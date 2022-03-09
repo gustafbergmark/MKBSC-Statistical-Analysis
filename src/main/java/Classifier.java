@@ -26,13 +26,90 @@ public class Classifier {
     }
 
 
-    static boolean hasOverlap(MAGIIAN game) {
+    static boolean hasOverlapSubsetOnly(MAGIIAN game) {
+        return hasOverlapCombined(game) == 1;
+    }
+
+    static boolean hasOverlapNoSubsetOnly(MAGIIAN game) {
+        return hasOverlapCombined(game) == 2;
+    }
+
+    static boolean hasOverlapBoth(MAGIIAN game) {
+        return hasOverlapCombined(game) == 3;
+    }
+
+    static boolean hasNoOverlap(MAGIIAN game) {
+        return hasOverlapCombined(game) == 0;
+    }
+
+    static boolean hasOverlapSubset(MAGIIAN game) {
         //General approach for n players
         for (int i = 0; i < game.players; i++) {
             for (int j = i + 1; j < game.players; j++) {
                 for (int k = 0; k < game.states; k++) {
                     if (game.observations[i].getSize(k) > 1 && game.observations[j].getSize(k) > 1) { //observation overlap found
-                        return true;
+                        if(game.observations[i].getObsInSameState(k).containsAll(game.observations[j].getObsInSameState(k))
+                                || game.observations[j].getObsInSameState(k).containsAll(game.observations[i].getObsInSameState(k))) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    static public int hasOverlapCombined(MAGIIAN game) {
+        boolean hasOverlapNoSubset = false;
+        //General approach for n players
+        for (int i = 0; i < game.players; i++) {
+            for (int j = i + 1; j < game.players; j++) {
+                for (int k = 0; k < game.states; k++) {
+                    if (game.observations[i].getSize(k) > 1 && game.observations[j].getSize(k) > 1) { //observation overlap found
+                        if(!game.observations[i].getObsInSameState(k).containsAll(game.observations[j].getObsInSameState(k))
+                                && !game.observations[j].getObsInSameState(k).containsAll(game.observations[i].getObsInSameState(k))) {
+                            hasOverlapNoSubset = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        boolean hasOverlapSubset = false;
+        //General approach for n players
+        for (int i = 0; i < game.players; i++) {
+            for (int j = i + 1; j < game.players; j++) {
+                for (int k = 0; k < game.states; k++) {
+                    if (game.observations[i].getSize(k) > 1 && game.observations[j].getSize(k) > 1) { //observation overlap found
+                        if(game.observations[i].getObsInSameState(k).containsAll(game.observations[j].getObsInSameState(k))
+                                || game.observations[j].getObsInSameState(k).containsAll(game.observations[i].getObsInSameState(k))) {
+                            hasOverlapSubset = true;
+                        }
+                    }
+                }
+            }
+        }
+        if(hasOverlapNoSubset && hasOverlapSubset) {
+            return 3;
+        } else if(hasOverlapNoSubset) {
+            return 2;
+        } else if(hasOverlapSubset) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    static boolean hasOverlapNoSubset(MAGIIAN game) {
+        //General approach for n players
+        for (int i = 0; i < game.players; i++) {
+            for (int j = i + 1; j < game.players; j++) {
+                for (int k = 0; k < game.states; k++) {
+                    if (game.observations[i].getSize(k) > 1 && game.observations[j].getSize(k) > 1) { //observation overlap found
+                        if(!game.observations[i].getObsInSameState(k).containsAll(game.observations[j].getObsInSameState(k))
+                                && !game.observations[j].getObsInSameState(k).containsAll(game.observations[i].getObsInSameState(k))) {
+                            return true;
+                        }
                     }
                 }
             }

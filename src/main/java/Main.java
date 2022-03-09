@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         PrintWriter writer = new PrintWriter("games.txt");
         Generator generator = new Generator(5,2,"ab");
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 50000; i++) {
             MAGIIAN game = generator.generate();
             writer.println(game.toString());
         }

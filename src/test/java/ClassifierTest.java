@@ -117,7 +117,7 @@ class ClassifierTest {
         game.setObsForPlayer(1,2,0);
         game.setObsForPlayer(1,1,1);
 
-        boolean result = Classifier.hasOverlap(game);
+        boolean result = Classifier.hasOverlapNoSubset(game);
         assert (result);
     }
 }

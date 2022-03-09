@@ -150,6 +150,17 @@ public class MAGIIAN {
             return count;
         }
 
+        // Returns all states which are in the same observation as the given state
+        public ArrayList<Integer> getObsInSameState(int state) {
+            ArrayList<Integer> result = new ArrayList<>();
+            for (int i = 0; i < obs.length; i++) {
+                if(obs[state] == obs[i]){
+                    result.add(i);
+                }
+            }
+            return result;
+        }
+
         boolean isNormalised(){
             boolean[] seen = new boolean[states];
             int count = 0;
