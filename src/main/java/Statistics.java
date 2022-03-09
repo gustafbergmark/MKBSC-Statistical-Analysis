@@ -9,6 +9,14 @@ import static org.apache.commons.math3.stat.inference.TestUtils.*;
 
 public class Statistics {
     public static void main(String[] args) throws IOException {
+
+        testindependences();
+        bigstat();
+
+    }
+
+
+    public static void testindependences() throws IOException {
         System.out.println("Has cycles:");
         testindependence(Classifier::hasCycles);
 
@@ -23,7 +31,6 @@ public class Statistics {
 
         System.out.println("Has both kinds of overlap:");
         testindependence(Classifier::hasOverlapBoth);
-        //bigstat();
     }
 
     public static void bigstat() throws IOException {
@@ -99,6 +106,7 @@ public class Statistics {
         System.out.println("Alpha 0.1: " + chiSquareTest(values, 0.1));
         System.out.println("Alpha 0.05: " + chiSquareTest(values, 0.05));
         System.out.println("Alpha 0.01: " + chiSquareTest(values, 0.01));
+        System.out.println();
         games.close();
     }
 }
