@@ -5,7 +5,7 @@ public class Generator {
     Random random;
     int states, players;
     String actions;
-    double k = 0.5;
+    double k = 0.2;
 
     public Generator(int states, int players, String actions) {
         this.states = states;

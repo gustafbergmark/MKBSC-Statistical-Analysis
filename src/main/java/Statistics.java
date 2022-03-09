@@ -1,5 +1,6 @@
 import org.json.JSONObject;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.function.Function;
@@ -9,11 +10,17 @@ import static org.apache.commons.math3.stat.inference.TestUtils.*;
 public class Statistics {
     public static void main(String[] args) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("analysedgames.txt"));
-        testindependence(reader, Classifier::hasOverlap);
+        testindependence(reader, Classifier::hasNature);
+        //bigstat();
+    }
 
-        /*String line;
+    public static void bigstat() throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader("analysedgames.txt"));
+
+        String line;
         int cycles = 0;
         int overlap = 0;
+        int nature = 0;
         int total = 0;
         while((line = reader.readLine()) != null) {
             JSONObject json = new JSONObject(line);
@@ -24,11 +31,16 @@ public class Statistics {
             if(Classifier.hasOverlap(game)) {
                 overlap++;
             }
+            if(Classifier.hasNature(game)) {
+                nature++;
+            }
             total++;
+
         }
         System.out.println("Cycles: " + cycles);
         System.out.println("Overlap: " + overlap);
-        System.out.println("Total: " + total);*/
+        System.out.println("Nature: " + nature);
+        System.out.println("Total: " + total);
     }
 
     public static void testindependence(BufferedReader games, Function<MAGIIAN, Boolean> function) throws IOException {
