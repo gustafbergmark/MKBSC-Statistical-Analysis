@@ -1,6 +1,7 @@
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -59,6 +60,41 @@ public class MAGIIAN {
                     setObsForPlayer(i, parsedobsstates.getInt(k), currentobs);
                 }
                 currentobs++;
+            }
+        }
+    }
+
+    public void neighbours(PrintWriter writer) {
+        //print base game
+        writer.println(this.toString());
+
+        //vary edges
+        for (Transition edge:delta) {
+            int original = edge.to;
+            for (int i = 0; i < states; i++) {
+                edge.to = i;
+                if(i != original) {
+                    writer.println(this.toString());
+                }
+                edge.to = original;
+            }
+        }
+
+        //vary observations by swapping which observation two states belong to.
+        for (Observation observation:observations) {
+            for (int i = 0; i < states; i++) {
+                for (int j = i+1; j < states; j++) {
+                    if(observation.obs[i] != observation.obs[j] && (observation.getSize(i) > 1 || observation.getSize(j) > 1)) {
+                        int temp = observation.obs[i];
+                        observation.obs[i] = observation.obs[j];
+                        observation.obs[j] = temp;
+
+                        writer.println(this.toString());
+
+                        observation.obs[j] = observation.obs[i];
+                        observation.obs[i] = temp;
+                    }
+                }
             }
         }
     }
