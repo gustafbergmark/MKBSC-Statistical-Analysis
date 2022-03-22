@@ -9,10 +9,8 @@ import static org.apache.commons.math3.stat.inference.TestUtils.*;
 
 public class Statistics {
     public static void main(String[] args) throws IOException {
-
         testindependences();
         bigstat();
-
     }
 
 
@@ -31,6 +29,9 @@ public class Statistics {
 
         System.out.println("Has both kinds of overlap:");
         testindependence(Classifier::hasOverlapBoth);
+
+        System.out.println("Has L0 valens:");
+        testindependence(Classifier::hasL0Valens);
     }
 
     public static void bigstat() throws IOException {
@@ -43,6 +44,7 @@ public class Statistics {
         int overlapBoth = 0;
         int noOverlap = 0;
         int nature = 0;
+        int l0valens = 0;
         int total = 0;
         while((line = reader.readLine()) != null) {
             JSONObject json = new JSONObject(line);
@@ -65,6 +67,9 @@ public class Statistics {
             if(Classifier.hasNature(game)) {
                 nature++;
             }
+            if(Classifier.hasL0Valens(game)) {
+                l0valens++;
+            }
             total++;
 
         }
@@ -74,6 +79,7 @@ public class Statistics {
         System.out.println("No overlap: " + noOverlap);
         System.out.println("Overlap both: " + overlapBoth);
         System.out.println("Nature: " + nature);
+        System.out.println("L0 Valens: " + l0valens);
         System.out.println("Total: " + total);
     }
 

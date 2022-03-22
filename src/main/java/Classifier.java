@@ -130,4 +130,9 @@ public class Classifier {
         }
         return false;
     }
+
+    //preemptive name
+    static boolean hasL0Valens(MAGIIAN game) {
+        return game.gettransitionfromstate(game.l0).size() == game.states;
+    }
 }
