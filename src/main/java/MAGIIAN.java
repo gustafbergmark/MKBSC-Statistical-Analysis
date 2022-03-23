@@ -196,6 +196,28 @@ public class MAGIIAN {
             }
             return result;
         }
+        
+        public int size() {
+            boolean[] counted = new boolean[states];
+            int count = 0;
+            for (int observation:obs) {
+                if(!counted[observation]) {
+                    counted[observation] = true;
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        public ArrayList<Integer> getObservation(int state) {
+            ArrayList<Integer> result = new ArrayList<>();
+            for (int i = 0; i < obs.length; i++) {
+                if(state == obs[i]){
+                    result.add(i);
+                }
+            }
+            return result;
+        }
 
         boolean isNormalised(){
             boolean[] seen = new boolean[states];

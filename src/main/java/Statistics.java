@@ -1,6 +1,5 @@
 import org.json.JSONObject;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.function.Function;
@@ -31,7 +30,10 @@ public class Statistics {
         testindependence(Classifier::hasOverlapBoth);
 
         System.out.println("Has L0 valens:");
-        testindependence(Classifier::hasL0Valens);
+        testindependence(Classifier::allStatesReachableFromL0);
+
+        System.out.println("Has WFO:");
+        testindependence(Classifier::hasWFO);
     }
 
     public static void bigstat() throws IOException {
@@ -45,6 +47,7 @@ public class Statistics {
         int noOverlap = 0;
         int nature = 0;
         int l0valens = 0;
+        int wfo = 0;
         int total = 0;
         while((line = reader.readLine()) != null) {
             JSONObject json = new JSONObject(line);
@@ -67,8 +70,11 @@ public class Statistics {
             if(Classifier.hasNature(game)) {
                 nature++;
             }
-            if(Classifier.hasL0Valens(game)) {
+            if(Classifier.allStatesReachableFromL0(game)) {
                 l0valens++;
+            }
+            if(Classifier.hasWFO(game)) {
+                wfo++;
             }
             total++;
 
@@ -80,6 +86,7 @@ public class Statistics {
         System.out.println("Overlap both: " + overlapBoth);
         System.out.println("Nature: " + nature);
         System.out.println("L0 Valens: " + l0valens);
+        System.out.println("WFO: " + wfo);
         System.out.println("Total: " + total);
     }
 
@@ -104,11 +111,10 @@ public class Statistics {
                 }
             }
         }
-        /*System.out.println(values[0][0]);
+        System.out.println(values[0][0]);
         System.out.println(values[0][1]);
         System.out.println(values[1][0]);
         System.out.println(values[1][1]);
-        System.out.println("Alpha 0.5: " + chiSquareTest(values, 0.5));*/
         System.out.println("Alpha 0.1: " + chiSquareTest(values, 0.1));
         System.out.println("Alpha 0.05: " + chiSquareTest(values, 0.05));
         System.out.println("Alpha 0.01: " + chiSquareTest(values, 0.01));

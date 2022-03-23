@@ -132,7 +132,43 @@ public class Classifier {
     }
 
     //preemptive name
-    static boolean hasL0Valens(MAGIIAN game) {
-        return game.gettransitionfromstate(game.l0).size() == game.states;
+    static boolean allStatesReachableFromL0(MAGIIAN game) {
+        boolean[] reached = new boolean[game.states];
+        int count = 0;
+        for (MAGIIAN.Transition transition: game.gettransitionfromstate(game.l0)) {
+            if(!reached[transition.to]) {
+                count++;
+                reached[transition.to] = true;
+            }
+        }
+        return count == game.states;
+    }
+    // WFO = WellFormedObservations
+    // All nodes in an observation state are reachable from any other observations state that has atleast
+    // one transition into said observation state
+    static boolean hasWFO(MAGIIAN game) {
+        for (MAGIIAN.Observation playerObs:game.observations) {
+
+            for (int j = 0; j < playerObs.size(); j++) {
+                ArrayList<Integer> states = playerObs.getObservation(j);
+                boolean[] reachablestates = new boolean[game.states];
+                for (int state:states) {
+                    for (MAGIIAN.Transition edge:game.gettransitionfromstate(state)) {
+                        reachablestates[edge.to] = true;
+                    }
+                }
+                for (int k = 0; k < game.states; k++) {
+                    if(reachablestates[k]) {
+                        ArrayList<Integer> sameObs = playerObs.getObsInSameState(k);
+                        for (int state:sameObs) {
+                            if(!reachablestates[state]) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 }
