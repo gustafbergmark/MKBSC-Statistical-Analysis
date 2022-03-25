@@ -162,9 +162,14 @@ public class Classifier {
 
     static boolean hasBothPlayerUncertain(MAGIIAN game) {
         for (int state = 0; state < game.states; state++) {
-            int totalconfusion = 0;
-            ArrayList<MAGIIAN.Transition> transitions = game.gettransitionfromstate(state);
+            boolean[] totalconfusion = new boolean[game.players];
+            //ArrayList<MAGIIAN.Transition> transitions = game.gettransitionfromstate(state);
             for (int player = 0; player < game.players; player++) {
+                ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
+                ArrayList<Integer> statesinobs = game.observations[player].getObsInSameState(state);
+                for (int obsstate : statesinobs) {
+                    transitions.addAll(game.gettransitionfromstate(obsstate));
+                }
                 for (char action:game.sigma[player].toCharArray()) {
                     ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
                     for (MAGIIAN.Transition transition : transitions) {
@@ -173,15 +178,23 @@ public class Classifier {
                         }
                     }
                     boolean[] visitedobs = new boolean[game.observations[player].size()];
+                    boolean[] visitedstates = new boolean[game.states];
                     for (MAGIIAN.Transition transition:actiontransitions) {
-                        if(visitedobs[game.observations[player].obs[transition.to]]) {
-                            totalconfusion++;
+                        if(visitedobs[game.observations[player].obs[transition.to]] && !visitedstates[transition.to]) {
+                            totalconfusion[player] = true;
                         }
                         visitedobs[game.observations[player].obs[transition.to]] = true;
+                        visitedstates[transition.to] = true;
                     }
                 }
             }
-            if(totalconfusion>1) {
+            int confusioncount = 0;
+            for (int i = 0; i < game.players; i++) {
+                if(totalconfusion[i]) {
+                    confusioncount++;
+                }
+            }
+            if(confusioncount>1) {
                 return true;
             }
         }

@@ -213,6 +213,7 @@ public class MAGIIAN {
             return count;
         }
 
+        // gets all states in an observation. State refers to the observation state
         public ArrayList<Integer> getObservation(int state) {
             ArrayList<Integer> result = new ArrayList<>();
             for (int i = 0; i < obs.length; i++) {
