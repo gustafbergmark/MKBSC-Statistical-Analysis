@@ -1,0 +1,4 @@
+stable 9 and 17
+divergent 8
+
+player 0 and 1 both have a move which makes them uncertain of the resulting position from the same position.

@@ -156,6 +156,10 @@ public class MAGIIAN {
             this.path = path;
         }
 
+        public char playermove(int player) {
+            return path.charAt(player);
+        }
+
 
         @Override
         public String toString() {

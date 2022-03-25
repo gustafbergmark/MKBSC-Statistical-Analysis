@@ -131,18 +131,6 @@ public class Classifier {
         return false;
     }
 
-    //preemptive name
-    static boolean allStatesReachableFromL0(MAGIIAN game) {
-        boolean[] reached = new boolean[game.states];
-        int count = 0;
-        for (MAGIIAN.Transition transition: game.gettransitionfromstate(game.l0)) {
-            if(!reached[transition.to]) {
-                count++;
-                reached[transition.to] = true;
-            }
-        }
-        return count == game.states;
-    }
     // WFO = WellFormedObservations
     // All nodes in an observation state are reachable from any other observations state that has atleast
     // one transition into said observation state
@@ -170,5 +158,33 @@ public class Classifier {
             }
         }
         return true;
+    }
+
+    static boolean hasBothPlayerUncertain(MAGIIAN game) {
+        for (int state = 0; state < game.states; state++) {
+            int totalconfusion = 0;
+            ArrayList<MAGIIAN.Transition> transitions = game.gettransitionfromstate(state);
+            for (int player = 0; player < game.players; player++) {
+                for (char action:game.sigma[player].toCharArray()) {
+                    ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                    for (MAGIIAN.Transition transition : transitions) {
+                        if(transition.playermove(player)==action) {
+                            actiontransitions.add(transition);
+                        }
+                    }
+                    boolean[] visitedobs = new boolean[game.observations[player].size()];
+                    for (MAGIIAN.Transition transition:actiontransitions) {
+                        if(visitedobs[game.observations[player].obs[transition.to]]) {
+                            totalconfusion++;
+                        }
+                        visitedobs[game.observations[player].obs[transition.to]] = true;
+                    }
+                }
+            }
+            if(totalconfusion>1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

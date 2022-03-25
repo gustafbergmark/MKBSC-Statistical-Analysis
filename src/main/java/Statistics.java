@@ -29,15 +29,15 @@ public class Statistics {
         System.out.println("Has both kinds of overlap:");
         testindependence(Classifier::hasOverlapBoth);
 
-        System.out.println("Has L0 valens:");
-        testindependence(Classifier::allStatesReachableFromL0);
-
         System.out.println("Has WFO:");
         testindependence(Classifier::hasWFO);
+
+        System.out.println("Has total confusion:");
+        testindependence(Classifier::hasBothPlayerUncertain);
     }
 
     public static void bigstat() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("analysedgames.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("50kanalysed.txt"));
 
         String line;
         int cycles = 0;
@@ -46,8 +46,8 @@ public class Statistics {
         int overlapBoth = 0;
         int noOverlap = 0;
         int nature = 0;
-        int l0valens = 0;
         int wfo = 0;
+        int totalconfusion = 0;
         int total = 0;
         while((line = reader.readLine()) != null) {
             JSONObject json = new JSONObject(line);
@@ -70,11 +70,11 @@ public class Statistics {
             if(Classifier.hasNature(game)) {
                 nature++;
             }
-            if(Classifier.allStatesReachableFromL0(game)) {
-                l0valens++;
-            }
             if(Classifier.hasWFO(game)) {
                 wfo++;
+            }
+            if(Classifier.hasBothPlayerUncertain(game)) {
+                totalconfusion++;
             }
             total++;
 
@@ -85,13 +85,13 @@ public class Statistics {
         System.out.println("No overlap: " + noOverlap);
         System.out.println("Overlap both: " + overlapBoth);
         System.out.println("Nature: " + nature);
-        System.out.println("L0 Valens: " + l0valens);
         System.out.println("WFO: " + wfo);
+        System.out.println("Total confusion: " + totalconfusion);
         System.out.println("Total: " + total);
     }
 
     public static void testindependence(Function<MAGIIAN, Boolean> function) throws IOException {
-        BufferedReader games = new BufferedReader(new FileReader("analysedgames.txt"));
+        BufferedReader games = new BufferedReader(new FileReader("50kanalysed.txt"));
         long[][] values = new long[2][2];
         String line;
         while((line = games.readLine()) != null) {
@@ -107,14 +107,15 @@ public class Statistics {
                 if(game.stabilises > 0) {
                     values[1][0]++;
                 } else {
+                    System.out.println(game);
                     values[1][1]++;
                 }
             }
         }
-        System.out.println(values[0][0]);
-        System.out.println(values[0][1]);
-        System.out.println(values[1][0]);
-        System.out.println(values[1][1]);
+        System.out.println("true and stable:   " + values[0][0]);
+        System.out.println("true and diverge:  " + values[0][1]);
+        System.out.println("false and stable:  " + values[1][0]);
+        System.out.println("false and diverge: " + values[1][1]);
         System.out.println("Alpha 0.1: " + chiSquareTest(values, 0.1));
         System.out.println("Alpha 0.05: " + chiSquareTest(values, 0.05));
         System.out.println("Alpha 0.01: " + chiSquareTest(values, 0.01));
