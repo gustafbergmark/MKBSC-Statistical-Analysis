@@ -2,6 +2,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -62,6 +63,57 @@ public class MAGIIAN {
                 currentobs++;
             }
         }
+    }
+
+    public ArrayList<ArrayList<Integer>> getPlayersActualPossibleKnowledge(int player) {
+        ArrayList<Integer> startstate = new ArrayList<>();
+        startstate.add(l0);
+        visitedstates = new ArrayList<>();
+        return PAPKhelper(this, player, startstate);
+    }
+
+    public boolean visited(ArrayList<Integer> currentstate) {
+        for (ArrayList<Integer> visited:visitedstates) {
+            if(visited.containsAll(currentstate) && currentstate.containsAll(visited)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    ArrayList<ArrayList<Integer>> visitedstates;
+
+    public ArrayList<ArrayList<Integer>> PAPKhelper(MAGIIAN game, int player, ArrayList<Integer> currentstate) {
+        if(visited(currentstate)) {
+            return new ArrayList<>();
+        }
+        visitedstates.add(currentstate);
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        result.add(currentstate);
+        ArrayList<Transition> transitions = new ArrayList<>();
+        for (int state : currentstate) {
+            transitions.addAll(game.gettransitionfromstate(state));
+        }
+        for (char action:game.sigma[player].toCharArray()) {
+            ArrayList<Integer> reachable = new ArrayList<>();
+            for (MAGIIAN.Transition transition : transitions) {
+                if(transition.playermove(player)==action) {
+                    reachable.add(transition.to);
+                }
+            }
+            for (int currentobs = 0; currentobs < game.observations[player].size(); currentobs++) {
+                ArrayList<Integer> newstate = new ArrayList<>();
+                for (int state:reachable) {
+                    if(game.observations[player].obs[state] == currentobs) {
+                        if(!newstate.contains(state)) {
+                            newstate.add(state);
+                        }
+                    }
+                }
+                result.addAll(PAPKhelper(game, player, newstate));
+            }
+        }
+        return result;
     }
 
     public void neighbours(PrintWriter writer) {

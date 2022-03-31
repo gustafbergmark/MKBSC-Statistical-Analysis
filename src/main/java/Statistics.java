@@ -9,12 +9,12 @@ import static org.apache.commons.math3.stat.inference.TestUtils.*;
 public class Statistics {
     public static void main(String[] args) throws IOException {
         testindependences();
-        bigstat();
+        //bigstat();
     }
 
 
     public static void testindependences() throws IOException {
-        System.out.println("Has cycles:");
+        /*System.out.println("Has cycles:");
         testindependence(Classifier::hasCycles);
 
         System.out.println("Has nature:");
@@ -34,6 +34,22 @@ public class Statistics {
 
         System.out.println("Has total confusion:");
         testindependence(Classifier::hasBothPlayerUncertain);
+
+        System.out.println("Has no DADK:");
+        testindependence(Classifier::hasNoDifferentActionDifferentKnowledge);
+
+        System.out.println("Has no DADK new:");
+        testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEW);*/
+
+        System.out.println("Has no DADK new new:");
+        testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEWnew);
+
+        /*System.out.println("Has no DADK new new new:");
+        testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEWnewNEW);*/
+
+
+        System.out.println("Has DWC:");
+        testindependence(Classifier::hasDeterminismWithCooperation);
     }
 
     public static void bigstat() throws IOException {
@@ -48,6 +64,7 @@ public class Statistics {
         int nature = 0;
         int wfo = 0;
         int totalconfusion = 0;
+        int dadk = 0;
         int total = 0;
         while((line = reader.readLine()) != null) {
             JSONObject json = new JSONObject(line);
@@ -76,6 +93,9 @@ public class Statistics {
             if(Classifier.hasBothPlayerUncertain(game)) {
                 totalconfusion++;
             }
+            if(Classifier.hasNoDifferentActionDifferentKnowledge(game)) {
+                dadk++;
+            }
             total++;
 
         }
@@ -87,11 +107,12 @@ public class Statistics {
         System.out.println("Nature: " + nature);
         System.out.println("WFO: " + wfo);
         System.out.println("Total confusion: " + totalconfusion);
+        System.out.println("DADK: " + dadk);
         System.out.println("Total: " + total);
     }
 
     public static void testindependence(Function<MAGIIAN, Boolean> function) throws IOException {
-        BufferedReader games = new BufferedReader(new FileReader("50kanalysed.txt"));
+        BufferedReader games = new BufferedReader(new FileReader("50k32ab.txt"));
         long[][] values = new long[2][2];
         String line;
         while((line = games.readLine()) != null) {
@@ -107,7 +128,6 @@ public class Statistics {
                 if(game.stabilises > 0) {
                     values[1][0]++;
                 } else {
-                    System.out.println(game);
                     values[1][1]++;
                 }
             }

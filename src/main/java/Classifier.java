@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
 public class Classifier {
 
@@ -200,4 +203,276 @@ public class Classifier {
         }
         return false;
     }
+
+    static boolean hasNoDifferentActionDifferentKnowledge(MAGIIAN game) {
+        for (int state = 0; state < game.states; state++) {
+            ArrayList<MAGIIAN.Transition> transitions = game.gettransitionfromstate(state);
+            for (int player = 0; player < game.players; player++) {
+                /*ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
+                ArrayList<Integer> statesinobs = game.observations[player].getObsInSameState(state);
+                for (int obsstate : statesinobs) {
+                    transitions.addAll(game.gettransitionfromstate(obsstate));
+                }*/
+                boolean[][] visitedobs = new boolean[game.sigma[player].length()][game.observations[player].size()];
+                boolean[][] visitedstates = new boolean[game.sigma[player].length()][game.states];
+                int index = 0;
+                for (char action:game.sigma[player].toCharArray()) {
+                    ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                    for (MAGIIAN.Transition transition : transitions) {
+                        if(transition.playermove(player)==action) {
+                            actiontransitions.add(transition);
+                        }
+                    }
+
+                    for (MAGIIAN.Transition transition:actiontransitions) {
+                        visitedobs[index][game.observations[player].obs[transition.to]] = true;
+                        visitedstates[index][transition.to] = true;
+                    }
+                    index++;
+                }
+
+                for (int i = 1; i < game.sigma[player].length(); i++) {
+                    for (int j = 0; j < game.states; j++) {
+                        if((visitedstates[0][j] != visitedstates[i][j]) &&
+                        visitedobs[0][game.observations[player].obs[j]] && visitedobs[i][game.observations[player].obs[j]]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    static boolean hasNoDifferentActionDifferentKnowledgeNEW(MAGIIAN game) {
+        for (int state = 0; state < game.states; state++) {
+            //ArrayList<MAGIIAN.Transition> transitions = game.gettransitionfromstate(state);
+            for (int player = 0; player < game.players; player++) {
+                ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
+                ArrayList<Integer> statesinobs = game.observations[player].getObsInSameState(state);
+                for (int obsstate : statesinobs) {
+                    transitions.addAll(game.gettransitionfromstate(obsstate));
+                }
+                boolean[][] visitedobs = new boolean[game.sigma[player].length()][game.observations[player].size()];
+                boolean[][] visitedstates = new boolean[game.sigma[player].length()][game.states];
+                int index = 0;
+                for (char action:game.sigma[player].toCharArray()) {
+                    ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                    for (MAGIIAN.Transition transition : transitions) {
+                        if(transition.playermove(player)==action) {
+                            actiontransitions.add(transition);
+                        }
+                    }
+
+                    for (MAGIIAN.Transition transition:actiontransitions) {
+                        visitedobs[index][game.observations[player].obs[transition.to]] = true;
+                        visitedstates[index][transition.to] = true;
+                    }
+                    index++;
+                }
+
+                for (int i = 0; i < game.sigma[player].length(); i++) {
+                    for (int j = i+1; j < game.sigma[player].length(); j++) {
+                        for (int k = 0; k < game.observations[player].size(); k++) {
+                            if(visitedobs[i][k] && visitedobs[j][k]) {
+                                ArrayList<Integer> obstate = game.observations[player].getObservation(k);
+                                boolean overlap = false;
+                                boolean difference = false;
+                                for (int node:obstate) {
+                                    if(visitedstates[i][node] && visitedstates[j][node]) {
+                                        overlap = true;
+                                    } else if(visitedstates[i][node] != visitedstates[j][node]) {
+                                        difference = true;
+                                    }
+                                }
+                                if(overlap && difference) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(game.stabilises == 0) {
+            //System.out.println(game);
+        }
+        return true;
+    }
+
+    static boolean hasNoDifferentActionDifferentKnowledgeNEWnew(MAGIIAN game) {
+        for (int player = 0; player < game.players; player++) {
+            ArrayList<ArrayList<Integer>> possibleknowledge = game.getPlayersActualPossibleKnowledge(player);
+
+            // testing hypothesis
+            /*for (int i = 0; i < game.states; i++) {
+                ArrayList<Integer> temp = new ArrayList<>();
+                temp.add(i);
+                possibleknowledge.add(temp);
+            }*/
+
+            for (ArrayList<Integer> knowledge:possibleknowledge) {
+                ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
+                for (int obsstate : knowledge) {
+                    transitions.addAll(game.gettransitionfromstate(obsstate));
+                }
+                boolean[][] visitedobs = new boolean[game.sigma[player].length()][game.observations[player].size()];
+                boolean[][] visitedstates = new boolean[game.sigma[player].length()][game.states];
+                int index = 0;
+                for (char action:game.sigma[player].toCharArray()) {
+                    ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                    for (MAGIIAN.Transition transition : transitions) {
+                        if(transition.playermove(player)==action) {
+                            actiontransitions.add(transition);
+                        }
+                    }
+
+                    for (MAGIIAN.Transition transition:actiontransitions) {
+                        visitedobs[index][game.observations[player].obs[transition.to]] = true;
+                        visitedstates[index][transition.to] = true;
+                    }
+                    index++;
+                }
+
+                for (int i = 0; i < game.sigma[player].length(); i++) {
+                    for (int j = i+1; j < game.sigma[player].length(); j++) {
+                        for (int k = 0; k < game.observations[player].size(); k++) {
+                            if(visitedobs[i][k] && visitedobs[j][k]) {
+                                ArrayList<Integer> obstate = game.observations[player].getObservation(k);
+                                boolean overlap = false;
+                                boolean difference = false;
+                                for (int node:obstate) {
+                                    if(visitedstates[i][node] && visitedstates[j][node]) {
+                                        overlap = true;
+                                    } else if(visitedstates[i][node] != visitedstates[j][node]) {
+                                        difference = true;
+                                    }
+                                }
+                                if(difference) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(game.stabilises == 0) {
+            System.out.println(game);
+        }
+        return true;
+    }
+
+    static boolean hasNoDifferentActionDifferentKnowledgeNEWnewNEW(MAGIIAN game) {
+        for(int firstplayer = 0; firstplayer < game.players; firstplayer++) {
+            ArrayList<ArrayList<Integer>> firstplayerpossibleknowledge = game.getPlayersActualPossibleKnowledge(firstplayer);
+            for (int player = 0; player < game.players; player++) {
+                if(firstplayer == player) {
+                    continue;
+                }
+                for (ArrayList<Integer> firstplayerknowledge:firstplayerpossibleknowledge) {
+                    ArrayList<ArrayList<Integer>> temppossibleknowledge = game.getPlayersActualPossibleKnowledge(player);
+                    ArrayList<ArrayList<Integer>> possibleknowledge = new ArrayList<>();
+                    for (ArrayList<Integer> secondplayerknowledge:temppossibleknowledge) {
+                        if(!Collections.disjoint(firstplayerknowledge, secondplayerknowledge)) {
+                            possibleknowledge.add(secondplayerknowledge);
+                        }
+                    }
+                    ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
+                    for (ArrayList<Integer> knowledge:possibleknowledge) {
+                        for (int obsstate : knowledge) {
+                            transitions.addAll(game.gettransitionfromstate(obsstate));
+                        }
+                    }
+                    boolean[][] visitedobs = new boolean[game.sigma[player].length()][game.observations[player].size()];
+                    boolean[][] visitedstates = new boolean[game.sigma[player].length()][game.states];
+                    int index = 0;
+                    for (char action:game.sigma[player].toCharArray()) {
+                        ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                        for (MAGIIAN.Transition transition : transitions) {
+                            if(transition.playermove(player)==action) {
+                                actiontransitions.add(transition);
+                            }
+                        }
+
+                        for (MAGIIAN.Transition transition:actiontransitions) {
+                            visitedobs[index][game.observations[player].obs[transition.to]] = true;
+                            visitedstates[index][transition.to] = true;
+                        }
+                        index++;
+                    }
+
+                    for (int i = 0; i < game.sigma[player].length(); i++) {
+                        for (int j = i+1; j < game.sigma[player].length(); j++) {
+                            for (int k = 0; k < game.observations[player].size(); k++) {
+                                if(visitedobs[i][k] && visitedobs[j][k]) {
+                                    ArrayList<Integer> obstate = game.observations[player].getObservation(k);
+                                    boolean overlap = false;
+                                    boolean difference = false;
+                                    for (int node:obstate) {
+                                        if(visitedstates[i][node] && visitedstates[j][node]) {
+                                            overlap = true;
+                                        } else if(visitedstates[i][node] != visitedstates[j][node]) {
+                                            difference = true;
+                                        }
+                                    }
+                                    if(overlap && difference) {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(game.stabilises == 0) {
+            //System.out.println(game);
+        }
+        return true;
+    }
+
+    public static boolean hasDeterminismWithCooperation(MAGIIAN game) {
+        for (int state = 0; state < game.states; state++) {
+            ArrayList<MAGIIAN.Transition> transitions = game.gettransitionfromstate(state);
+            for (int player = 0; player < game.players; player++) {
+                LinkedList<String> comboactions = Generator.combinedactions(game.sigma[0]);
+                boolean[] nondeterministicaction = new boolean[comboactions.size()];
+                int index = 0;
+                for (String comboaction:comboactions) {
+                    ArrayList<MAGIIAN.Transition> cooptransitions = new ArrayList<>();
+                    for (MAGIIAN.Transition trans:transitions) {
+                        if(trans.path.equals(comboaction)) {
+                            cooptransitions.add(trans);
+                        }
+                    }
+                    boolean[] visitedobs = new boolean[game.observations[player].size()];
+                    boolean[] visitedstates = new boolean[game.states];
+                    for (MAGIIAN.Transition trans:cooptransitions) {
+                        if(visitedobs[game.observations[player].obs[trans.to]] && !visitedstates[trans.to]) {
+                            nondeterministicaction[index] = true;
+                            return false;
+                        }
+                        visitedobs[game.observations[player].obs[trans.to]] = true;
+                        visitedstates[trans.to] = true;
+                    }
+                    index++;
+                }
+                boolean flag = true;
+                for (int i = 0; i <  nondeterministicaction.length; i++) {
+                    if(!nondeterministicaction[i]) {
+                        flag = false;
+                    }
+                }
+                if(flag) {
+                    return false;
+                }
+            }
+        }
+        if(game.stabilises == 0) {
+            //System.out.println(game);
+        }
+        return true;
+    }
+
 }
