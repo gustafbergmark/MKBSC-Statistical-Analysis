@@ -112,7 +112,7 @@ public class Statistics {
     }
 
     public static void testindependence(Function<MAGIIAN, Boolean> function) throws IOException {
-        BufferedReader games = new BufferedReader(new FileReader("50kgames7.txt"));
+        BufferedReader games = new BufferedReader(new FileReader("50k32abGK1.txt"));
         long[][] values = new long[2][2];
         String line;
         while((line = games.readLine()) != null) {

@@ -479,4 +479,8 @@ public class Classifier {
         return true;
     }
 
+    public static boolean expandedDADK(MAGIIAN game) {
+        return true;
+    }
+
 }
