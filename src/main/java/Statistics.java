@@ -14,10 +14,10 @@ public class Statistics {
 
 
     public static void testindependences() throws IOException {
-        /*System.out.println("Has cycles:");
+        System.out.println("Has cycles:");
         testindependence(Classifier::hasCycles);
 
-        System.out.println("Has nature:");
+        /*System.out.println("Has nature:");
         testindependence(Classifier::hasNature);
 
         System.out.println("Has subset overlap only:");
@@ -44,8 +44,8 @@ public class Statistics {
         System.out.println("Has no DADK new new:");
         testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEWnew);
 
-        /*System.out.println("Has no DADK new new new:");
-        testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEWnewNEW);*/
+        System.out.println("Has no DADK new new new:");
+        testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEWnewNEW);
 
 
         System.out.println("Has DWC:");
@@ -112,7 +112,7 @@ public class Statistics {
     }
 
     public static void testindependence(Function<MAGIIAN, Boolean> function) throws IOException {
-        BufferedReader games = new BufferedReader(new FileReader("50k32ab.txt"));
+        BufferedReader games = new BufferedReader(new FileReader("50kgames7.txt"));
         long[][] values = new long[2][2];
         String line;
         while((line = games.readLine()) != null) {

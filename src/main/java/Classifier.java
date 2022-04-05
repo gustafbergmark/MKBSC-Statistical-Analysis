@@ -8,7 +8,11 @@ public class Classifier {
     public static boolean hasCycles(MAGIIAN game) {
         boolean[] visited = new boolean[game.states];
         int currentstate = game.l0;
-        return recursiveCycles(game, visited, currentstate);
+        boolean ret = recursiveCycles(game, visited, currentstate);
+        if(game.stabilises == 0 && !ret) {
+            //System.out.println(game);
+        }
+        return ret;
     }
 
     private static boolean recursiveCycles(MAGIIAN game, boolean[] visited, int currentstate) {
@@ -316,6 +320,7 @@ public class Classifier {
                 for (int obsstate : knowledge) {
                     transitions.addAll(game.gettransitionfromstate(obsstate));
                 }
+
                 boolean[][] visitedobs = new boolean[game.sigma[player].length()][game.observations[player].size()];
                 boolean[][] visitedstates = new boolean[game.sigma[player].length()][game.states];
                 int index = 0;
@@ -348,7 +353,7 @@ public class Classifier {
                                         difference = true;
                                     }
                                 }
-                                if(difference) {
+                                if(overlap && difference) {
                                     return false;
                                 }
                             }
@@ -358,52 +363,51 @@ public class Classifier {
             }
         }
         if(game.stabilises == 0) {
-            System.out.println(game);
+            //System.out.println(game);
         }
         return true;
     }
 
     static boolean hasNoDifferentActionDifferentKnowledgeNEWnewNEW(MAGIIAN game) {
         for(int firstplayer = 0; firstplayer < game.players; firstplayer++) {
+            //System.out.println("First player: " + firstplayer);
             ArrayList<ArrayList<Integer>> firstplayerpossibleknowledge = game.getPlayersActualPossibleKnowledge(firstplayer);
             for (int player = 0; player < game.players; player++) {
+                ArrayList<ArrayList<Integer>> possibleknowledge = game.getPlayersActualPossibleKnowledge(player);
                 if(firstplayer == player) {
                     continue;
                 }
                 for (ArrayList<Integer> firstplayerknowledge:firstplayerpossibleknowledge) {
-                    ArrayList<ArrayList<Integer>> temppossibleknowledge = game.getPlayersActualPossibleKnowledge(player);
-                    ArrayList<ArrayList<Integer>> possibleknowledge = new ArrayList<>();
-                    for (ArrayList<Integer> secondplayerknowledge:temppossibleknowledge) {
-                        if(!Collections.disjoint(firstplayerknowledge, secondplayerknowledge)) {
-                            possibleknowledge.add(secondplayerknowledge);
-                        }
-                    }
-                    ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
-                    for (ArrayList<Integer> knowledge:possibleknowledge) {
-                        for (int obsstate : knowledge) {
-                            transitions.addAll(game.gettransitionfromstate(obsstate));
-                        }
-                    }
-                    boolean[][] visitedobs = new boolean[game.sigma[player].length()][game.observations[player].size()];
-                    boolean[][] visitedstates = new boolean[game.sigma[player].length()][game.states];
+                    //System.out.println("first player knowledge: " + firstplayerknowledge);
                     int index = 0;
-                    for (char action:game.sigma[player].toCharArray()) {
-                        ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
-                        for (MAGIIAN.Transition transition : transitions) {
-                            if(transition.playermove(player)==action) {
-                                actiontransitions.add(transition);
+                    boolean[][] visitedobs = new boolean[game.sigma[player].length()*firstplayerknowledge.size()*(int)Math.pow(2, game.states-1)][game.observations[player].size()];
+                    boolean[][] visitedstates = new boolean[game.sigma[player].length()*firstplayerknowledge.size()*(int)Math.pow(2, game.states-1)][game.states];
+                    for (int state:firstplayerknowledge) {
+                        for (ArrayList<Integer> knowledge:possibleknowledge) {
+                            if(knowledge.contains(state)) {
+                                ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
+                                for (int obsstate : knowledge) {
+                                    transitions.addAll(game.gettransitionfromstate(obsstate));
+                                }
+                                for (char action:game.sigma[player].toCharArray()) {
+                                    ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                                    for (MAGIIAN.Transition transition : transitions) {
+                                        if(transition.playermove(player)==action) {
+                                            actiontransitions.add(transition);
+                                        }
+                                    }
+
+                                    for (MAGIIAN.Transition transition:actiontransitions) {
+                                        visitedobs[index][game.observations[player].obs[transition.to]] = true;
+                                        visitedstates[index][transition.to] = true;
+                                    }
+                                    index++;
+                                }
                             }
                         }
-
-                        for (MAGIIAN.Transition transition:actiontransitions) {
-                            visitedobs[index][game.observations[player].obs[transition.to]] = true;
-                            visitedstates[index][transition.to] = true;
-                        }
-                        index++;
                     }
-
-                    for (int i = 0; i < game.sigma[player].length(); i++) {
-                        for (int j = i+1; j < game.sigma[player].length(); j++) {
+                    for (int i = 0; i < index; i++) {
+                        for (int j = i+1; j < index; j++) {
                             for (int k = 0; k < game.observations[player].size(); k++) {
                                 if(visitedobs[i][k] && visitedobs[j][k]) {
                                     ArrayList<Integer> obstate = game.observations[player].getObservation(k);
