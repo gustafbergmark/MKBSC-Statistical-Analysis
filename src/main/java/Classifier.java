@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Classifier {
 
@@ -21,7 +19,7 @@ public class Classifier {
         }
         visited[currentstate] = true;
         for (MAGIIAN.Transition edge : game.gettransitionfromstate(currentstate)) {
-            if (edge.from != edge.to) {
+            if (/*edge.from != edge.to*/true) {
                 boolean result = recursiveCycles(game, visited, edge.to);
                 if (result) {
                     return true;
@@ -46,6 +44,7 @@ public class Classifier {
     }
 
     static boolean hasNoOverlap(MAGIIAN game) {
+        if(hasOverlapCombined(game) == 0 && game.stabilises == 0) System.out.println(game);
         return hasOverlapCombined(game) == 0;
     }
 
@@ -380,8 +379,8 @@ public class Classifier {
                 for (ArrayList<Integer> firstplayerknowledge:firstplayerpossibleknowledge) {
                     //System.out.println("first player knowledge: " + firstplayerknowledge);
                     int index = 0;
-                    boolean[][] visitedobs = new boolean[game.sigma[player].length()*firstplayerknowledge.size()*(int)Math.pow(2, game.states-1)][game.observations[player].size()];
-                    boolean[][] visitedstates = new boolean[game.sigma[player].length()*firstplayerknowledge.size()*(int)Math.pow(2, game.states-1)][game.states];
+                    boolean[][] visitedobs = new boolean[game.sigma[player].length()*firstplayerknowledge.size()*possibleknowledge.size()][game.observations[player].size()];
+                    boolean[][] visitedstates = new boolean[game.sigma[player].length()*firstplayerknowledge.size()*possibleknowledge.size()][game.states];
                     for (int state:firstplayerknowledge) {
                         for (ArrayList<Integer> knowledge:possibleknowledge) {
                             if(knowledge.contains(state)) {
@@ -480,7 +479,126 @@ public class Classifier {
     }
 
     public static boolean expandedDADK(MAGIIAN game) {
+        for (int player = 0; player < game.players; player++) {
+            for (ArrayList<Integer> knowledge:game.getPlayersActualPossibleKnowledge(player)) {
+                ArrayList<MAGIIAN.Transition> transitions = new ArrayList<>();
+                for (int state : knowledge) {
+                    transitions.addAll(game.gettransitionfromstate(state));
+                }
+                for (char action:game.sigma[player].toCharArray()) {
+                    ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                    for (MAGIIAN.Transition transition : transitions) {
+                        if(transition.playermove(player)==action) {
+                            actiontransitions.add(transition);
+                        }
+                    }
+
+                    boolean[] visitedobs = new boolean[game.observations[player].size()];
+                    boolean[] visitedstates = new boolean[game.states];
+                    for (MAGIIAN.Transition transition:actiontransitions) {
+                        if(visitedobs[game.observations[player].obs[transition.to]] && !visitedstates[transition.to]) {
+                            if(game.stabilises > 0) {
+                                //System.out.println(game);
+                            }
+                            return false;
+                        }
+                        visitedobs[game.observations[player].obs[transition.to]] = true;
+                        visitedstates[transition.to] = true;
+                    }
+                }
+            }
+        }
         return true;
     }
+
+    public static boolean expandedDADKnew(MAGIIAN game) {
+        for (int player = 0; player < game.players; player++) {
+            for (int state = 0; state < game.states; state++) {
+                ArrayList<MAGIIAN.Transition> transitions = game.gettransitionfromstate(state);
+                for (char action:game.sigma[player].toCharArray()) {
+                    ArrayList<MAGIIAN.Transition> actiontransitions = new ArrayList<>();
+                    for (MAGIIAN.Transition transition : transitions) {
+                        if(transition.playermove(player)==action) {
+                            actiontransitions.add(transition);
+                        }
+                    }
+
+                    boolean[] visitedobs = new boolean[game.observations[player].size()];
+                    boolean[] visitedstates = new boolean[game.states];
+                    for (MAGIIAN.Transition transition:actiontransitions) {
+                        if(visitedobs[game.observations[player].obs[transition.to]] && !visitedstates[transition.to]) {
+                            return false;
+                        }
+                        visitedobs[game.observations[player].obs[transition.to]] = true;
+                        visitedstates[transition.to] = true;
+                    }
+                }
+            }
+        }
+        if(game.stabilises > 0) {
+            //System.out.println(game);
+        }
+        return true;
+    }
+
+    public static boolean cartesian(MAGIIAN game) {
+        for (int player = 0; player < game.players; player++) {
+            ArrayList<ArrayList<Integer>> possibleknowledge = game.getPlayersActualPossibleKnowledge(player);
+            //System.out.println(possibleknowledge);
+            int sum = possibleknowledge.stream().map(s -> s.size()).collect(Collectors.summingInt(Integer::intValue));
+            if(sum > game.states) {
+                //if(game.stabilises > 0) System.out.println(game);
+                //return false;
+            }
+        }
+        //if(game.stabilises== 0)System.out.println(game);
+        return true;
+    }
+
+    public static boolean deepcartesian(MAGIIAN game) {
+        for (int player = 0; player < game.players; player++) {
+            for (ArrayList<Integer> knowledge:game.getPlayersActualPossibleKnowledge(player)) {
+                List<MAGIIAN.Transition> transitions = game.delta.stream().filter(transition -> knowledge.contains(transition.from)).collect(Collectors.toList());
+                List<List<List<MAGIIAN.Transition>>> actionreachedobs = new ArrayList<>(game.sigma[player].length());
+                for (char action : game.sigma[player].toCharArray()) {
+                    int finalPlayer = player;
+                    List<MAGIIAN.Transition> reachable = transitions.stream().filter(transition -> transition.playermove(finalPlayer)==action).collect(Collectors.toList());
+                    List<List<MAGIIAN.Transition>> reachedobs = new ArrayList<>();
+                    for (int observation = 0; observation < game.observations[player].size(); observation++) {
+                        int finalObservation = observation;
+                        List<MAGIIAN.Transition> reachedinobs = reachable.stream().filter(transition -> game.observations[finalPlayer].obs[transition.to] == finalObservation).collect(Collectors.toList());
+                        reachedobs.add(observation, reachedinobs);
+                    }
+                    actionreachedobs.add(reachedobs);
+                }
+                for (int secondplayer = 0; secondplayer < game.players; secondplayer++) {
+                    if(player==secondplayer) continue;
+                    for (int first = 0; first < game.sigma[player].length(); first++) {
+                        for (int second = 0; second < game.sigma[player].length(); second++) {
+                            if (first == second) continue;
+                            List<List<Integer>> firstreachedstates = actionreachedobs.get(first).stream().map(list -> list.stream().map(transition -> transition.to).distinct().collect(Collectors.toList())).collect(Collectors.toList());
+                            List<List<Integer>> secondreachedstates = actionreachedobs.get(second).stream().map(list -> list.stream().map(transition -> transition.to).distinct().collect(Collectors.toList())).collect(Collectors.toList());
+                            for (int i = 0; i < firstreachedstates.size(); i++) {
+                                ArrayList<Integer> firstobs = new ArrayList(firstreachedstates.get(i));
+                                ArrayList<Integer> secondobs = new ArrayList(secondreachedstates.get(i));
+                                if(!Collections.disjoint(firstobs, secondobs) && !(firstobs.containsAll(secondobs) && secondobs.containsAll(firstobs))) {
+                                    int finalSecondplayer = secondplayer;
+                                    ArrayList<Character> firstactionsecondplayeractions = new ArrayList<>(actionreachedobs.get(first).get(i).stream().map(transition -> transition.playermove(finalSecondplayer)).collect(Collectors.toList()));
+                                    ArrayList<Character> secondactionsecondplayeractions = new ArrayList<>(actionreachedobs.get(second).get(i).stream().map(transition -> transition.playermove(finalSecondplayer)).collect(Collectors.toList()));
+                                    if(!Collections.disjoint(firstactionsecondplayeractions, secondactionsecondplayeractions) &&
+                                            !(firstactionsecondplayeractions.containsAll(secondactionsecondplayeractions) && secondactionsecondplayeractions.containsAll(firstactionsecondplayeractions))) {
+                                        return false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+
 
 }

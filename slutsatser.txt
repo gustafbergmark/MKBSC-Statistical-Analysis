@@ -4,3 +4,7 @@ divergent 8
 player 0 and 1 both have a move which makes them uncertain of the resulting position from the same position.
 atleast one player has two different moves which can result in different information about the current state.
 Måste utgå från praktist information kring nuvarande state, kan inte lita blint på observationsstates.
+
+i 3 2 2 games utan obs overlap, sök efter splitting move med möjlighet att komma tillbaka och kunna göra det movet igen
+
+andra playern vet inte om man är confused eller inte, men efter en loop vet de det, eller tvärtom.

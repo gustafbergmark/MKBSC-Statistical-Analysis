@@ -68,7 +68,8 @@ public class Generator {
         return result;
     }
 
-    //Uniformly chooses amount of bins for observation states according o J. Stam
+    //Uniformly chooses amount of bins for observation states according to J. Stam
+    //https://stats.stackexchange.com/questions/497858/sampling-uniformly-from-the-set-of-partitions-of-a-set
     public int getbins(int n) {
         double[] binprobability = new double[n];
         double total = 0;

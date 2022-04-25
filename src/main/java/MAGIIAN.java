@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class MAGIIAN {
     int states;
@@ -112,6 +113,51 @@ public class MAGIIAN {
                 }
                 result.addAll(PAPKhelper(game, player, newstate));
             }
+        }
+        return result;
+    }
+
+    public ArrayList<ArrayList<Integer>> advancedtraversehelper(MAGIIAN game, int player, ArrayList<Integer> currentstate, int secondplayer, char secondplayeraction) {
+        if(visited(currentstate)) {
+            return new ArrayList<>();
+        }
+        visitedstates.add(currentstate);
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        result.add(currentstate);
+        ArrayList<Transition> transitions = new ArrayList<>();
+        for (int state : currentstate) {
+            transitions.addAll(game.gettransitionfromstate(state));
+        }
+        transitions = new ArrayList<>(transitions.stream().filter(transition -> transition.playermove(secondplayer) == secondplayeraction).collect(Collectors.toList()));
+        for (char action:game.sigma[player].toCharArray()) {
+            ArrayList<Integer> reachable = new ArrayList<>();
+            for (MAGIIAN.Transition transition : transitions) {
+                if(transition.playermove(player)==action) {
+                    reachable.add(transition.to);
+                }
+            }
+            for (int currentobs = 0; currentobs < game.observations[player].size(); currentobs++) {
+                ArrayList<Integer> newstate = new ArrayList<>();
+                for (int state:reachable) {
+                    if(game.observations[player].obs[state] == currentobs) {
+                        if(!newstate.contains(state)) {
+                            newstate.add(state);
+                        }
+                    }
+                }
+                result.addAll(advancedtraversehelper(game, player, newstate, secondplayer, secondplayeraction));
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<ArrayList<ArrayList<Integer>>> advancedtraverse(int player, int secondplayer) {
+        ArrayList<Integer> startstate = new ArrayList<>();
+        startstate.add(l0);
+        visitedstates = new ArrayList<>();
+        ArrayList<ArrayList<ArrayList<Integer>>> result = new ArrayList<>();
+        for (char action:this.sigma[secondplayer].toCharArray()) {
+            result.add(advancedtraversehelper(this, player, startstate, secondplayer, action));
         }
         return result;
     }

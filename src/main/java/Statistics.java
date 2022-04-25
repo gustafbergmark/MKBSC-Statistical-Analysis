@@ -14,10 +14,10 @@ public class Statistics {
 
 
     public static void testindependences() throws IOException {
-        System.out.println("Has cycles:");
+        /*System.out.println("Has cycles:");
         testindependence(Classifier::hasCycles);
 
-        /*System.out.println("Has nature:");
+        System.out.println("Has nature:");
         testindependence(Classifier::hasNature);
 
         System.out.println("Has subset overlap only:");
@@ -39,7 +39,7 @@ public class Statistics {
         testindependence(Classifier::hasNoDifferentActionDifferentKnowledge);
 
         System.out.println("Has no DADK new:");
-        testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEW);*/
+        testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEW);
 
         System.out.println("Has no DADK new new:");
         testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEWnew);
@@ -47,13 +47,27 @@ public class Statistics {
         System.out.println("Has no DADK new new new:");
         testindependence(Classifier::hasNoDifferentActionDifferentKnowledgeNEWnewNEW);
 
-
-        System.out.println("Has DWC:");
+        /*System.out.println("Has no DWC:");
         testindependence(Classifier::hasDeterminismWithCooperation);
+
+        System.out.println("Has exandedDADK:");
+        testindependence(Classifier::expandedDADK);
+
+        System.out.println("Has exandedDADK new:");
+        testindependence(Classifier::expandedDADKnew);
+
+        System.out.println("Has cartisian:");
+        testindependence(Classifier::cartesian);
+
+        System.out.println("Has deep cartisian:");
+        testindependence(Classifier::deepcartesian);
+
+        */System.out.println("Has no overlap:");
+        testindependence(Classifier::hasNoOverlap);
     }
 
     public static void bigstat() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("50kanalysed.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("50k32ab.txt"));
 
         String line;
         int cycles = 0;
@@ -112,12 +126,13 @@ public class Statistics {
     }
 
     public static void testindependence(Function<MAGIIAN, Boolean> function) throws IOException {
-        BufferedReader games = new BufferedReader(new FileReader("50k32abGK1.txt"));
+        BufferedReader games = new BufferedReader(new FileReader("50k32ab.txt"));
         long[][] values = new long[2][2];
         String line;
         while((line = games.readLine()) != null) {
             JSONObject json = new JSONObject(line);
             MAGIIAN game = new MAGIIAN(json);
+            //if(game.stabilises == 0) System.out.println(game);
             if(function.apply(game)) {
                 if(game.stabilises > 0) {
                     values[0][0]++;
