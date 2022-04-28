@@ -54,16 +54,16 @@ public class Statistics {
         testindependence(Classifier::expandedDADK);
 
         System.out.println("Has exandedDADK new:");
-        testindependence(Classifier::expandedDADKnew);
+        testindependence(Classifier::expandedDADKnew);*/
 
         System.out.println("Has cartisian:");
         testindependence(Classifier::cartesian);
 
-        System.out.println("Has deep cartisian:");
+        /*System.out.println("Has deep cartisian:");
         testindependence(Classifier::deepcartesian);
 
-        */System.out.println("Has no overlap:");
-        testindependence(Classifier::hasNoOverlap);
+        System.out.println("Has no overlap:");
+        testindependence(Classifier::hasNoOverlap);*/
     }
 
     public static void bigstat() throws IOException {

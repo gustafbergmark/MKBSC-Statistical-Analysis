@@ -542,13 +542,14 @@ public class Classifier {
     }
 
     public static boolean cartesian(MAGIIAN game) {
+        int states = game.reachablestates().size();
         for (int player = 0; player < game.players; player++) {
             ArrayList<ArrayList<Integer>> possibleknowledge = game.getPlayersActualPossibleKnowledge(player);
             //System.out.println(possibleknowledge);
             int sum = possibleknowledge.stream().map(s -> s.size()).collect(Collectors.summingInt(Integer::intValue));
-            if(sum > game.states) {
+            if(sum > states) {
                 //if(game.stabilises > 0) System.out.println(game);
-                //return false;
+                return false;
             }
         }
         //if(game.stabilises== 0)System.out.println(game);

@@ -2,7 +2,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -66,15 +65,36 @@ public class MAGIIAN {
         }
     }
 
+    ArrayList<Integer> visitedstates;
+
+    public ArrayList<Integer> reachablestates() {
+        if(visitedstates != null) return visitedstates;
+        visitedstates = new ArrayList<>();
+        return reachabelstateshelper(l0);
+    }
+
+    public ArrayList<Integer> reachabelstateshelper(int state) {
+        if(visitedstates.contains(state)) {
+            return new ArrayList<>();
+        }
+        visitedstates.add(state);
+        ArrayList<Integer> result = new ArrayList<>();
+        result.add(state);
+        for (Transition transition:gettransitionfromstate(state)) {
+            result.addAll(reachabelstateshelper(transition.to));
+        }
+        return result;
+    }
+
     public ArrayList<ArrayList<Integer>> getPlayersActualPossibleKnowledge(int player) {
         ArrayList<Integer> startstate = new ArrayList<>();
         startstate.add(l0);
-        visitedstates = new ArrayList<>();
+        visitedknowledgestates = new ArrayList<>();
         return PAPKhelper(this, player, startstate);
     }
 
     public boolean visited(ArrayList<Integer> currentstate) {
-        for (ArrayList<Integer> visited:visitedstates) {
+        for (ArrayList<Integer> visited: visitedknowledgestates) {
             if(visited.containsAll(currentstate) && currentstate.containsAll(visited)) {
                 return true;
             }
@@ -82,13 +102,13 @@ public class MAGIIAN {
         return false;
     }
 
-    ArrayList<ArrayList<Integer>> visitedstates;
+    ArrayList<ArrayList<Integer>> visitedknowledgestates;
 
     public ArrayList<ArrayList<Integer>> PAPKhelper(MAGIIAN game, int player, ArrayList<Integer> currentstate) {
         if(visited(currentstate)) {
             return new ArrayList<>();
         }
-        visitedstates.add(currentstate);
+        visitedknowledgestates.add(currentstate);
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
         result.add(currentstate);
         ArrayList<Transition> transitions = new ArrayList<>();
@@ -121,7 +141,7 @@ public class MAGIIAN {
         if(visited(currentstate)) {
             return new ArrayList<>();
         }
-        visitedstates.add(currentstate);
+        visitedknowledgestates.add(currentstate);
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
         result.add(currentstate);
         ArrayList<Transition> transitions = new ArrayList<>();
@@ -154,7 +174,7 @@ public class MAGIIAN {
     public ArrayList<ArrayList<ArrayList<Integer>>> advancedtraverse(int player, int secondplayer) {
         ArrayList<Integer> startstate = new ArrayList<>();
         startstate.add(l0);
-        visitedstates = new ArrayList<>();
+        visitedknowledgestates = new ArrayList<>();
         ArrayList<ArrayList<ArrayList<Integer>>> result = new ArrayList<>();
         for (char action:this.sigma[secondplayer].toCharArray()) {
             result.add(advancedtraversehelper(this, player, startstate, secondplayer, action));
