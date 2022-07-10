@@ -6,23 +6,41 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("50k32ab.txt"));
-        PrintWriter writer = new PrintWriter("32abnooverlap.txt");
+
+        int numberofgames = 10;
+
+        PrintWriter writer = new PrintWriter("examplegames.txt");
+        Generator generator = new Generator(3,2,"ab");
+
+        //generates the desired amount of games
+        for (int i = 0; i < numberofgames; i++) {
+            MAGIIAN game = generator.generate();
+            writer.println(game.toString());
+        }
+
+        /*
+        This code reads a file of games and deletes all games which do not contain observation overlap
+
+        BufferedReader reader = new BufferedReader(new FileReader("games.txt"));
+        PrintWriter overWriter = new PrintWriter("overWritten.txt");
         String line;
         while((line = reader.readLine()) != null) {
             JSONObject json = new JSONObject(line);
             MAGIIAN game = new MAGIIAN(json);
             if(Classifier.hasNoOverlap(game)) {
-                writer.println(game);
+                overWriter.println(game);
             }
-        }
+        }*/
 
-        //getNeighbours123();
         writer.close();
-        reader.close();
+        //overWriter.close();
+        //reader.close();
+
+        //getNeighbours();
     }
 
 
+    //Generates a list of "neighbouring" games given a random MAGIIAN game.
     private static void getNeighbours() throws FileNotFoundException {
         PrintWriter writer = new PrintWriter("neighbours.txt");
         Generator generator = new Generator(3,2,"ab");
@@ -30,6 +48,7 @@ public class Main {
         game.neighbours(writer);
         writer.close();
     }
+
 
     private static void getNeighbours123() throws FileNotFoundException {
         PrintWriter writer = new PrintWriter("neighbours.txt");

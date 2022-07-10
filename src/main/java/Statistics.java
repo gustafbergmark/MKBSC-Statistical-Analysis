@@ -8,8 +8,8 @@ import static org.apache.commons.math3.stat.inference.TestUtils.*;
 
 public class Statistics {
     public static void main(String[] args) throws IOException {
-        testindependences();
-        //bigstat();
+        //testindependences();
+        bigstat();
     }
 
 
@@ -67,7 +67,7 @@ public class Statistics {
     }
 
     public static void bigstat() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("50k32ab.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("games.txt"));
 
         String line;
         int cycles = 0;
@@ -126,7 +126,7 @@ public class Statistics {
     }
 
     public static void testindependence(Function<MAGIIAN, Boolean> function) throws IOException {
-        BufferedReader games = new BufferedReader(new FileReader("50k32ab.txt"));
+        BufferedReader games = new BufferedReader(new FileReader("games.txt"));
         long[][] values = new long[2][2];
         String line;
         while((line = games.readLine()) != null) {
