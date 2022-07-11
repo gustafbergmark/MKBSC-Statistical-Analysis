@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        int numberofgames = 10;
+        int numberofgames = 5;
 
         PrintWriter writer = new PrintWriter("examplegames.txt");
         Generator generator = new Generator(3,2,"ab");
